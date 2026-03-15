@@ -10,7 +10,7 @@ import { authClient } from "./lib/auth";
 
 function App() {
   return (
-    <NeonAuthUIProvider authClient={authClient}>
+    <NeonAuthUIProvider authClient={authClient} defaultTheme="dark">
       <div className="min-h-screen flex flex-col">
         <NavBar />
         <main className="flex-1">
