@@ -51,7 +51,7 @@ const splitOptions = [
 ];
 
 const Onboarding = () => {
-  const { user } = useAuth();
+  const { user, saveProfile } = useAuth();
   const [formData, setFormData] = useState({
     goal: "bulk",
     experience: "intermediate",
@@ -82,6 +82,8 @@ const Onboarding = () => {
       injuries: formData.injuries || undefined,
       preferredSplit: formData.preferredSplit as UserProfile["preferredSplit"],
     };
+
+    saveProfile(profile);
     // try {
     //   await saveProfile(profile);
     //   setIsGenerating(true);
