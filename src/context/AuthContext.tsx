@@ -19,7 +19,7 @@ interface AuthContextType {
     profile: Omit<UserProfile, "userId" | "updatedAt">,
   ) => Promise<void>;
   generatePlan: () => Promise<void>;
-  // refreshData: () => Promise<void>;
+  refreshData: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -49,12 +49,28 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     loadUser();
   }, []);
 
+  useEffect(() => {
+    if (!isLoading) {
+      if (neonUser?.id) {
+        refreshData();
+      } else {
+        setPlan(null);
+      }
+      setIsLoading(false);
+    }
+  }, [neonUser?.id, isLoading]);
+
+  // refreshData memoize
   const refreshData = useCallback(async () => {
     if (!neonUser || isRefreshingRef.current) return;
 
     isRefreshingRef.current = true;
 
     try {
+      // Fetch profile
+      // const profileData =
+
+      // Fetch Plan
       const planData = await api.getCurrentPlan(neonUser.id).catch(() => null);
       if (planData) {
         setPlan({
@@ -91,6 +107,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     await api.generatePlan(neonUser.id);
+    await refreshData();
   }
 
   return (
@@ -101,6 +118,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         saveProfile,
         generatePlan,
+        refreshData,
       }}
     >
       {children}
