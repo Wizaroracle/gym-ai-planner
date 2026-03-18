@@ -1,5 +1,6 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -48,6 +49,31 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     loadUser();
   }, []);
 
+  const refreshData = useCallback(async () => {
+    if (!neonUser || isRefreshingRef.current) return;
+
+    isRefreshingRef.current = true;
+
+    try {
+      const planData = await api.getCurrentPlan(neonUser.id).catch(() => null);
+      if (planData) {
+        setPlan({
+          id: planData.id,
+          userId: planData.userId,
+          overview: planData.planJson.overview,
+          weeklySchedule: planData.planJson.weeklySchedule,
+          progression: planData.planJson.progression,
+          version: planData.version,
+          createdAt: planData.createdAt,
+        });
+      }
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+    } finally {
+      isRefreshingRef.current = false;
+    }
+  }, [neonUser?.id]);
+
   async function saveProfile(
     profileData: Omit<UserProfile, "userId" | "updatedAt">,
   ) {
@@ -56,6 +82,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     await api.saveProfile(neonUser.id, profileData);
+    await refreshData();
   }
 
   async function generatePlan() {
