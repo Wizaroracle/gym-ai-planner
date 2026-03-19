@@ -20,7 +20,7 @@ export default function Profile() {
     return <Navigate to="/auth/sign-in" replace />;
   }
   if (!plan) {
-    return <Navigate to="/onboarding" replace />;
+    return <Navigate to={plan ? "/profile" : "/onboarding"} replace />;
   }
 
   function formatDate(dateString: string) {
